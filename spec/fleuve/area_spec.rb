@@ -11,6 +11,11 @@ describe Area do
     Area.new([[0, 0], [1, 1]]).should be
   end
 
+  it "should return a correct row count" do
+    data = [[0, 0], [1, 1]]
+    Area.new(data).row_count.should == 2
+  end
+
 end
 
 end
