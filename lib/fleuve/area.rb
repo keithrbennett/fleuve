@@ -48,9 +48,37 @@ module Fleuve
       ]
     end
 
-    def optimal_path(current_column_number, current_row_number)
+    def calc_optimal_path(current_column_number, current_row_number)
       (current_column_number...column_count).each do |column_number|
 
+      end
+    end
+
+    
+    def new_path
+      Path.new(self)
+    end
+
+
+    class Path
+
+      attr_accessor :area, :rownums, :total_resistance
+
+      def initialize(area)
+        @area = area
+        @rownums = []
+        @total_resistance = 0
+      end
+
+      def current_column
+        rownums.size - 1
+      end
+
+      def <<(rownum)
+        @rownums << rownum
+        resistance = area.matrix_data[rownum][current_column]
+        @total_resistance += resistance
+        self
       end
     end
   end
