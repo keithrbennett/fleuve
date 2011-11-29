@@ -14,19 +14,24 @@ module Fleuve
     end
 
 
-    def parse(string)
-      row_strings = string.split("\n")
-      rows = []
+    def parse(multiline_rows_string)
+      row_strings = multiline_rows_string.split("\n")
+      rows_as_arrays = []
       row_strings.each do |row_string|
         row = row_string.split.map { |int_string| int_string.to_i }
-        rows << row
+        rows_as_arrays << row
       end
-      rows
+      rows_as_arrays
     end
 
 
     def row_count
       matrix_data.size
+    end
+
+
+    def column_count
+      matrix_data[0].size
     end
   end
 end
