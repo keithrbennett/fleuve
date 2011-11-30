@@ -45,6 +45,11 @@ module Fleuve
     end
 
 
+    def max_resistance
+      50  # Currently there is no requirement to allow deviating from this value.
+    end
+
+
     def next_column_rownums(current_rownum)
       [
           (current_rownum == 0 ? row_count - 1 : current_rownum - 1),
@@ -93,8 +98,33 @@ module Fleuve
       Path.new(self)
     end
 
+    def report_string
+
+      path = optimal_path
+      success = path && path.does_not_exceed_maximum?
+      format_string = "%-17.17s: %s"
+
+      lines = [format(format_string, "Success", (success ? "Yes" : "No" ))]
+
+      if success
+        lines << format(format_string, "Total Resistance", path.total_resistance)
+        lines << format(format_string, "Row Numbers", path.rownums_one_offset.join(", "))
+      end
+
+      lines.join("\n")
+    end
+
+
+
 
     class Path
+
+      # The way we will determine whether or not the maximum has been exceeded
+      # is this:  After the path is processed, if its column count is equal to
+      # the area's column count, then we know that it has processed all columns,
+      # and does not exceed the maximum.  The other case is that processing the
+      # next column would result in exceeding the maximum, so that column's row
+      # number is not added to the path, and the array is short.
 
       attr_accessor :area, :rownums
 
@@ -103,15 +133,18 @@ module Fleuve
       # A deep copy is returned so that modifying the working copy does not
       # modify the solution copy.
       def self.min_copy(path1, path2)
-        if path1.nil? && path2.nil?
-          raise "Invalid input: both paths are nil."
+
+        min_path = if path1.nil? && path2.nil?
+          nil
         elsif path1.nil?
-          path2.copy
+          path2
         elsif path2.nil?
-          path1.copy
+          path1
         else
-          path1 < path2 ? path1.copy : path2.copy
+          path1 < path2 ? path1 : path2
         end
+
+        (min_path && min_path.does_not_exceed_maximum?) ? min_path.copy : nil
       end
 
       def initialize(area, rownums_to_copy = nil)
@@ -164,6 +197,11 @@ module Fleuve
 
       def rownums_one_offset
         rownums.map { |n| n + 1 }
+      end
+
+      # The implementation
+      def does_not_exceed_maximum?
+        total_resistance <= area.max_resistance
       end
 
       def to_s
