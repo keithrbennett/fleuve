@@ -76,7 +76,6 @@ module Fleuve
     def optimal_path_recursive(working_path, solution_path = nil)
       if working_path.reached_last_column?
         solution_path = Path.min_copy(solution_path, working_path)
-        puts "\n\nUpdated solution path is #{solution_path}\n\n"
       else
         row_candidates = next_column_rownums(working_path.last_column_row)
         row_candidates.each do |rownum|
@@ -163,10 +162,13 @@ module Fleuve
         self
       end
 
+      def rownums_one_offset
+        rownums.map { |n| n + 1 }
+      end
+
       def to_s
         rownums.inspect
       end
     end
   end
 end
-
