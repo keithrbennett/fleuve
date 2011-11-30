@@ -7,10 +7,10 @@ module Fleuve
 
 describe Area do
 
-  def array_data;      [[0, 2, 12], [-1, 4, 18]];     end
-  def string_data;     "0 2 12\n -1 4 18";             end
-  def big_array_data;  [(0..6).to_a, (20..26).to_a];   end
-  def big_array_size;  9;                              end
+  def array_data;      [[0, 2, 12], [-1, 4, 18]];          end
+  def string_data;     "0 2 12\n -1 4 18";                 end
+  def big_array_data;  [(0..6).to_a, (20..26).to_a];       end
+  def array_3_x_3;     [[1, 2, 3], [2, 3, 1], [3, 1, 2]];  end
 
   it "should instantiate with a two dimensional array" do
     Area.new(array_data).should be
@@ -48,7 +48,7 @@ describe Area do
   end
 
   it "should calculate the 3 possible row numbers correctly for the top row" do
-    Area.new(big_array_data).next_column_rownums(0).should == [-1, 0, 1]
+    Area.new(big_array_data).next_column_rownums(0).should == [1, 0, 1]
   end
 
   it "should not permit initializing with invalid data" do
@@ -67,6 +67,12 @@ describe Area do
     path << 1 << 1 << 0
     path.total_resistance.should == 15
     path.rownums.should == [1, 1, 0]
+  end
+
+  it "calculates an optimal path" do
+    area = Area.new(array_3_x_3)
+    expected_path = area.new_path << 0 << 2 << 1
+    area.optimal_path.should == expected_path
   end
 end
 

@@ -39,6 +39,7 @@ module Fleuve
       matrix_data[0].size
     end
 
+
     def resistance(row, col)
       matrix_data[row][col]
     end
@@ -46,42 +47,49 @@ module Fleuve
 
     def next_column_rownums(current_rownum)
       [
-        current_rownum - 1,  # -1 is ok
-        current_rownum,
-        (current_rownum == row_count - 1) ? 0 : current_rownum + 1
+          (current_rownum == 0 ? row_count - 1 : current_rownum - 1),
+          current_rownum,
+          (current_rownum == row_count - 1) ? 0 : current_rownum + 1
       ]
     end
 
 
+    # The calculation's entry point..  This function is called recursively,
+    # once per column.
+    #
+    # To avoid naming conflicts, the term 'optimal' is used for function names,
+    # and 'solution' is used for the implementation's variable names.
     def optimal_path
       solution_path = nil
       (0...row_count).each do |rownum|
         working_path = new_path << rownum
-        row_optimal_path = calc_optimal_path(working_path)
-        if solution_path.nil? || (row_optimal_path < solution_path)
-          solution_path = row_optimal_path
-        end
+
+        # The sole underscore is used by Erlang and (AFAIK) other languages
+        # to indicate an unused value/variable:
+        _, row_solution_path = optimal_path_recursive(working_path)
+        solution_path = Path.min_copy(solution_path, row_solution_path)
       end
       solution_path
     end
 
-    # Here's the heart of the calculation.  This function is called recursively,
-    # once per column.
-    def calc_optimal_path(working_path, solution_path = nil)
+
+    def optimal_path_recursive(working_path, solution_path = nil)
       if working_path.reached_last_column?
-        if working_path < solution_path
-          solution_path = working_path
+        solution_path = Path.min_copy(solution_path, working_path)
+        puts "\n\nUpdated solution path is #{solution_path}\n\n"
+      else
+        row_candidates = next_column_rownums(working_path.last_column_row)
+        row_candidates.each do |rownum|
+          working_path << rownum
+          working_path, solution_path = optimal_path_recursive(working_path, solution_path)
         end
-        next_column_rownums(working_path.last_column_row).each do |rownum|
-          working_path.eat_next_column(rownum)
-          calc_optimal_path(working_path, solution_path)
-        end
-        working_path.pop
       end
-      solution_path
+
+      working_path.pop
+      [working_path, solution_path]
     end
 
-    
+
     def new_path
       Path.new(self)
     end
@@ -91,17 +99,33 @@ module Fleuve
 
       attr_accessor :area, :rownums
 
-      def initialize(area)
+      # Minimum of two paths, where nil is considered greater than any instance.
+      # This is for updating the solution (optimal) path variable.
+      # A deep copy is returned so that modifying the working copy does not
+      # modify the solution copy.
+      def self.min_copy(path1, path2)
+        if path1.nil? && path2.nil?
+          raise "Invalid input: both paths are nil."
+        elsif path1.nil?
+          path2.copy
+        elsif path2.nil?
+          path1.copy
+        else
+          path1 < path2 ? path1.copy : path2.copy
+        end
+      end
+
+      def initialize(area, rownums_to_copy = nil)
         @area = area
-        @rownums = []
+        @rownums = rownums_to_copy ? rownums_to_copy : []
+      end
+
+      def copy
+        Path.new(area, rownums.dup)
       end
 
       def current_column
         rownums.size - 1
-      end
-
-      def eat_next_column(rownum)
-        self << area.resistance(rownum, current_column + 1)
       end
 
       def reached_last_column?
@@ -128,11 +152,21 @@ module Fleuve
         total_resistance - other.total_resistance
       end
 
+      def  <(other); self.<=>(other)  < 0; end
+      def ==(other); self.<=>(other) == 0; end
+      def  >(other); self.<=>(other)  > 0; end
+
+
       # For stepping back a column.
       def pop
         rownums.pop
         self
       end
+
+      def to_s
+        rownums.inspect
+      end
     end
   end
 end
+
