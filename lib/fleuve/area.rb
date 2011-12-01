@@ -75,13 +75,14 @@ module Fleuve
     def optimal_path
       solution_path = nil
       (0...row_count).each do |rownum|
-        working_path = new_path << rownum
+        if resistance(rownum, 0) < max_resistance
+          working_path = new_path << rownum
 
-        # The sole underscore is used by Erlang and (AFAIK) other languages
-        # to indicate an ignored value/variable:
-        _, row_solution_path = optimal_path_recursive(working_path)
-        solution_path = Path.min_copy(solution_path, row_solution_path)
-
+          # The sole underscore is used by Erlang and (AFAIK) other languages
+          # to indicate an ignored value/variable:
+          _, row_solution_path = optimal_path_recursive(working_path)
+          solution_path = Path.min_copy(solution_path, row_solution_path)
+        end
       end
       (solution_path && solution_path.complete_optimal_path_candidate?) ? solution_path : nil
     end
