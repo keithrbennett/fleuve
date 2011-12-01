@@ -100,7 +100,7 @@ module Fleuve
         end
       end
 
-      working_path.pop
+      working_path.truncate_one
       [working_path, solution_path]
     end
 
@@ -209,11 +209,11 @@ module Fleuve
 
 
       # For stepping back a column. Returns the Path instance, not the value popped.
-      def pop
+      def truncate_one
         rownums.pop
         self
       end
-
+  
       # The example text uses offset 1 for the row numbers.  We're storing them
       # internally as 0 offset.  This function, transforms them to 1 offset for display.
       def rownums_one_offset
