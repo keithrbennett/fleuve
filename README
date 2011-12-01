@@ -1,1 +1,35 @@
+---------------------------------------------------------
 Solution to the LeanDog Path of Least Resistance problem.
+---------------------------------------------------------
+
+I am using Ruby Enterprise Edition:
+
+ruby 1.8.7 (2011-02-18 patchlevel 334) [i686-darwin10.7.3], MBARI 0x6770, Ruby Enterprise Edition 2011.03
+
+...and rspec 2.7.1.
+
+I like JRuby, but for cases like this it doesn't add anything useful
+(unless we do this multithreaded, see below) and takes longer to load.
+
+I chose this version of Ruby, and RSpec, because they do the job well.
+I haven't worked with Ruby 1.9 much, but if I had, I probably would prefer
+to use it for this problem.
+
+I chose the Ruby language because it is a perfect fit for this kind of task --
+flexible, concise, expressive.
+
+Much, but not all, of this development was done test first.
+I've tested the example inputs to ensure that they produce
+the example output (or, in one case, an alternate solution).
+
+There is much optimization that can be done here.  Currently, the
+calculation does not stop consuming columns after the maximum
+resistance has been reached.  This doesn't make the solution any
+less correct, but takes more time to complete.
+
+In addition, for larger data sets, this could be run in JRuby,
+with one thread allocated per CPU, and the starting rows partitioned
+among the threads.
+
+
+
