@@ -8,28 +8,38 @@ ruby 1.8.7 (2011-02-18 patchlevel 334) [i686-darwin10.7.3], MBARI 0x6770, Ruby E
 
 ...and rspec 2.7.1.
 
-I like JRuby, but for cases like this it doesn't add anything useful
-(unless we do this multithreaded, see below) and takes longer to load.
+I like JRuby, but it takes longer to load and for cases
+like this it doesn't add anything useful
+(unless we use a multithreaded approach, see below).
 
-I chose this version of Ruby, and RSpec, because they do the job well.
+I chose this version of Ruby, and RSpec, because they do their
+respective jobs well and I am comfortable with them.
 I haven't worked with Ruby 1.9 much, but if I had, I probably would prefer
 to use it for this problem.
 
 I chose the Ruby language because it is a perfect fit for this kind of task --
-flexible, concise, expressive.
+flexible, concise, powerful, and expressive.
 
 Much, but not all, of this development was done test first.
 I've tested the example inputs to ensure that they produce
 the example output (or, in one case, an alternate solution).
 
-There is much optimization that can be done here.  Currently, the
-calculation does not stop consuming columns after the maximum
-resistance has been reached.  This doesn't make the solution any
-less correct, but takes more time to complete.
-
 In addition, for larger data sets, this could be run in JRuby,
 with one thread allocated per CPU, and the starting rows partitioned
 among the threads.
 
+I have not yet successfully tested the 10x100 matrix because I'm working at a
+coffee shop with no electricity, and the 100% CPU would use up
+my battery quickly.  I tried it once but aborted after several minutes.
 
+Mea culpa: I spent way more time developing the infrastructure than
+thinking about the logic of the problem.  In fact, I'm not at all
+confident that there isn't a much better and faster approach.
+The recursive logic was the hardest part for me.
 
+It's interesting to note that I had assumed for a long time that
+in order not to waste processing time, I should stop consuming columns
+after the maximum resistance has been reached.  Fortunately, I
+left that "optimization" for the end, when I realized that the
+last column's value could be a negative number of great magnitude,
+and that it was not possible to avoid processing until the last column.
