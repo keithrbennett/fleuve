@@ -17,8 +17,11 @@ respective jobs well and I am comfortable with them.
 I haven't worked with Ruby 1.9 much, but if I had, I probably would prefer
 to use it for this problem.
 
-I chose the Ruby language because it is a perfect fit for this kind of task --
-flexible, concise, powerful, and expressive.
+I chose the Ruby language because it is flexible, concise,
+powerful, and expressive.  However, Lisp or Clojure would probably
+produce the result in 3 lines of code.  Those 3 lines might take
+a really long time to write (for me) though. ;)  At some point,
+I'd like to rewrite this in Clojure.
 
 Much, but not all, of this development was done test first.
 I've tested the example inputs to ensure that they produce
@@ -37,9 +40,5 @@ thinking about the logic of the problem.  In fact, I'm not at all
 confident that there isn't a much better and faster approach.
 The recursive logic was the hardest part for me.
 
-It's interesting to note that I had assumed for a long time that
-in order not to waste processing time, I should stop consuming columns
-after the maximum resistance has been reached.  Fortunately, I
-left that "optimization" for the end, when I realized that the
-last column's value could be a negative number of great magnitude,
-and that it was not possible to avoid processing until the last column.
+The Area.optimal_path method returns nil if there are no paths
+to completion in an area (i.e. all paths exceed maximum resistance).
