@@ -1,5 +1,9 @@
 module Fleuve
 
+
+  # Contains the matrix data and functionality relating to it,
+  # except for that which is specific to a path through the
+  # matrix; that is encapsulated in the Area::Path class.
   class Area
 
     attr_accessor :matrix_data
@@ -19,6 +23,7 @@ module Fleuve
     # Although the problem description says only "delimited integers",
     # the input examples are all space delimited, so we'll make the
     # assumption for now that these numbers will always be space delimited.
+    # The multiline string should not include any empty lines.
     def parse(multiline_rows_string)
       row_strings = multiline_rows_string.split("\n")
       rows_as_arrays = []
@@ -45,11 +50,13 @@ module Fleuve
     end
 
 
+    # The maximum resistance allowable in a successful path.
     def max_resistance
       50  # Currently there is no requirement to allow deviating from this value.
     end
 
 
+    # The rows that may be accessed in the next column, with top and bottom wrap.
     def next_column_rownums(current_rownum)
       [
           (current_rownum == 0 ? row_count - 1 : current_rownum - 1),
@@ -59,8 +66,7 @@ module Fleuve
     end
 
 
-    # The calculation's entry point..  This function is called recursively,
-    # once per column.
+    # The optimal path calculation's entry point.
     #
     # To avoid naming conflicts, the term 'optimal' is used for function names,
     # and 'solution' is used for the implementation's variable names.
@@ -70,7 +76,7 @@ module Fleuve
         working_path = new_path << rownum
 
         # The sole underscore is used by Erlang and (AFAIK) other languages
-        # to indicate an unused value/variable:
+        # to indicate an ignored value/variable:
         _, row_solution_path = optimal_path_recursive(working_path)
         solution_path = Path.min_copy(solution_path, row_solution_path)
       end
@@ -97,6 +103,7 @@ module Fleuve
     def new_path
       Path.new(self)
     end
+
 
     def report_string
 
@@ -149,7 +156,7 @@ module Fleuve
 
       def initialize(area, rownums_to_copy = nil)
         @area = area
-        @rownums = rownums_to_copy ? rownums_to_copy : []
+        @rownums = rownums_to_copy || []
       end
 
       def copy
@@ -166,7 +173,7 @@ module Fleuve
 
       # Yes, it's CPU-wasteful not to cache this value, but it can be optimized later.
       def total_resistance
-        (0..current_column).to_a.inject(0) do |sum, colnum|
+        (0..current_column).inject(0) do |sum, colnum|
           sum += area.resistance(rownums[colnum], colnum)
         end
       end
@@ -189,21 +196,24 @@ module Fleuve
       def  >(other); self.<=>(other)  > 0; end
 
 
-      # For stepping back a column.
+      # For stepping back a column. Returns the Path instance, not the value popped.
       def pop
         rownums.pop
         self
       end
 
+      # The example text uses offset 1 for the row numbers.  We're storing them
+      # internally as 0 offset.  This function, transforms them to 1 offset for display.
       def rownums_one_offset
         rownums.map { |n| n + 1 }
       end
 
-      # The implementation
+      # Whether or not this Path instance conforms to the max resistance constraint.
       def does_not_exceed_maximum?
         total_resistance <= area.max_resistance
       end
 
+      # Show the row array in [1, 3, 5] format.
       def to_s
         rownums.inspect
       end

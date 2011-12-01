@@ -50,7 +50,6 @@ module Fleuve
       Area.new(string_data).row_count.should == 2
     end
 
-
     it "should return a correct column count when initialized with an array" do
       Area.new(array_data).column_count.should == 3
     end
@@ -105,7 +104,7 @@ module Fleuve
     end
 
     it "should run example 1" do
-      puts "\n\n"
+      puts "\n\nExample 1:"
       puts Area.new(example_1_input_data).report_string
     end
 
@@ -113,12 +112,12 @@ module Fleuve
       # The result will be  1, 2, 1, 5, 5, 5, which is different from
       # the example's results of  1, 2, 1, 5, 4, 5.  This is ok,
       # because both paths return the same resistance.
-      puts "\n\n"
+      puts "\n\nExample 2:"
       puts Area.new(example_2_input_data).report_string
     end
 
     it "should run example 3" do
-      puts "\n\n"
+      puts "\n\nExample 3:"
       puts Area.new(example_3_input_data).report_string
     end
 
@@ -126,9 +125,5 @@ module Fleuve
     it "should not permit initializing with invalid data" do
       pending "Need to add validation of matrix data input."
     end
-
   end
-
-
-
 end
