@@ -1,3 +1,5 @@
+require 'set'
+
 module Fleuve
 
 
@@ -58,11 +60,11 @@ module Fleuve
 
     # The rows that may be accessed in the next column, with top and bottom wrap.
     def next_column_rownums(current_rownum)
-      [
-          (current_rownum == 0 ? row_count - 1 : current_rownum - 1),
-          current_rownum,
-          (current_rownum == row_count - 1) ? 0 : current_rownum + 1
-      ]
+      Set.new([
+          (current_rownum == 0 ? row_count - 1 : current_rownum - 1), # previous
+          current_rownum,                                             # this
+          (current_rownum == row_count - 1) ? 0 : current_rownum + 1  # next
+      ])
     end
 
 
@@ -79,8 +81,9 @@ module Fleuve
         # to indicate an ignored value/variable:
         _, row_solution_path = optimal_path_recursive(working_path)
         solution_path = Path.min_copy(solution_path, row_solution_path)
+
       end
-      solution_path
+      (solution_path && solution_path.complete_optimal_path_candidate?) ? solution_path : nil
     end
 
 
@@ -90,8 +93,10 @@ module Fleuve
       else
         row_candidates = next_column_rownums(working_path.last_column_row)
         row_candidates.each do |rownum|
-          working_path << rownum
-          working_path, solution_path = optimal_path_recursive(working_path, solution_path)
+          unless adding_next_value_would_exceed_maximum?(working_path, rownum)
+            working_path << rownum
+            working_path, solution_path = optimal_path_recursive(working_path, solution_path)
+          end
         end
       end
 
@@ -99,6 +104,13 @@ module Fleuve
       [working_path, solution_path]
     end
 
+
+    def adding_next_value_would_exceed_maximum?(working_path, next_rownum)
+      resistance_so_far = working_path.total_resistance
+      next_resistance = resistance(next_rownum, working_path.current_column + 1)
+      total_including_next = resistance_so_far + next_resistance
+      total_including_next > max_resistance
+    end
 
     def new_path
       Path.new(self)
@@ -108,10 +120,10 @@ module Fleuve
     def report_string
 
       path = optimal_path
-      success = path && path.does_not_exceed_max_resistance?
+      success = !!path
       format_string = "%-17.17s: %s"
 
-      lines = [format(format_string, "Success", (success ? "Yes" : "No" ))]
+      lines = [format(format_string, "Success?", (success ? "Yes" : "No" ))]
 
       if success
         lines << format(format_string, "Total Resistance", path.total_resistance)
@@ -211,6 +223,12 @@ module Fleuve
       # Whether or not this Path instance conforms to the max resistance constraint.
       def does_not_exceed_max_resistance?
         total_resistance <= area.max_resistance
+      end
+
+      # The path is only a candidate for complete optimal path if all columns
+      # have been processed:
+      def complete_optimal_path_candidate?
+        reached_last_column?
       end
 
       # Show the row array in [1, 3, 5] format.

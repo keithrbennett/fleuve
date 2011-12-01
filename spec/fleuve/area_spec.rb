@@ -59,17 +59,17 @@ module Fleuve
     end
 
     it "should calculate the 3 possible row numbers correctly for non-edge rows" do
-      Area.new(big_array_data).next_column_rownums(3).should == [2, 3, 4]
+      Area.new(big_array_data).next_column_rownums(3).should == Set.new([2, 3, 4])
     end
 
     it "should calculate the 3 possible row numbers correctly for bottom row" do
       area = Area.new(big_array_data)
       row_count = area.row_count
-      area.next_column_rownums(row_count - 1).should == [row_count - 2, row_count - 1, 0]
+      area.next_column_rownums(row_count - 1).should == Set.new([row_count - 2, row_count - 1, 0])
     end
 
     it "should calculate the 3 possible row numbers correctly for the top row" do
-      Area.new(big_array_data).next_column_rownums(0).should == [1, 0, 1]
+      Area.new(big_array_data).next_column_rownums(0).should == Set.new([0, 1])
     end
 
     it "should create a new Path whose rownum array is empty and total resistance is 0" do
@@ -122,31 +122,52 @@ module Fleuve
     end
 
     it "should run a matrix of 1 row and 5 columns" do
-      area = Area.new([1,2,3,4,5])
+      area = Area.new([[1,2,3,4,5]])
       path = area.optimal_path
-      puts path
       path.is_a?(Area::Path).should be_true
     end
 
-    it "should run a matrix of 10 rows and 100 columns" do
-      pending "This test takes a *really* long time to run.  Enable selectively..."
-      outer_array = []
-      # we want to guarantee we have an optimal path, so use 0 for all values
-      10.times { |n| outer_array << Array.new(100, -n) }
-      puts "Finished creating test data, calculating optimal path now."
-      area = Area.new(outer_array)
-      start_time = Time.now
-      puts "Starting calculation at #{start_time}."
-      path = area.optimal_path
-      end_time = Time.now
-      puts "Ending calculation at #{end_time}."
-      duration = end_time - start_time
-      puts "Calculation duration: #{duration}, path = #{path}"
-      path.is_a?(Area::Path).should be_true
+    it "should return nil as optimal path if no solutions can be found" do
+      Area.new([[1, 2, 49, 3, 4, 5]]).optimal_path.should be_nil
     end
 
-    it "should not permit initializing with invalid data" do
-      pending "Need to add validation of matrix data input."
+    it "should return a path if there is a path to the end" do
+      Area.new([[1, 2, 3, 3, 4, 5]]).optimal_path.should be_a(Area::Path)
     end
+
+    it "should return a path if there is a path to the end even if it exceeds max" do
+      path = Area.new([[1, 2, 50, 3, 4, 5]]).optimal_path
+      puts "Optimal path: #{path}"
+      path.should be_nil
+    end
+
+    it "should return a complete path even if a short path has a lower score" do
+      data = [
+        [1,1,50,50],
+        [1,1,1,1]
+      ]
+      Area.new(data).optimal_path.total_resistance.should == 4
+    end
+
+    #it "should run a matrix of 10 rows and 100 columns" do
+    #  pending "This test takes a *really* long time to run.  Enable selectively..."
+    #  outer_array = []
+    #  # we want to guarantee we have an optimal path, so use 0 for all values
+    #  10.times { |n| outer_array << Array.new(100, -n) }
+    #  puts "Finished creating test data, calculating optimal path now."
+    #  area = Area.new(outer_array)
+    #  start_time = Time.now
+    #  puts "Starting calculation at #{start_time}."
+    #  path = area.optimal_path
+    #  end_time = Time.now
+    #  puts "Ending calculation at #{end_time}."
+    #  duration = end_time - start_time
+    #  puts "Calculation duration: #{duration}, path = #{path}"
+    #  path.is_a?(Area::Path).should be_true
+    #end
+    #
+    #it "should not permit initializing with invalid data" do
+    #  pending "Need to add validation of matrix data input."
+    #end
   end
 end
