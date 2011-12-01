@@ -121,6 +121,29 @@ module Fleuve
       puts Area.new(example_3_input_data).report_string
     end
 
+    it "should run a matrix of 1 row and 5 columns" do
+      area = Area.new([1,2,3,4,5])
+      path = area.optimal_path
+      puts path
+      path.is_a?(Area::Path).should be_true
+    end
+
+    it "should run a matrix of 10 rows and 100 columns" do
+      pending "This test takes a *really* long time to run.  Enable selectively..."
+      outer_array = []
+      # we want to guarantee we have an optimal path, so use 0 for all values
+      10.times { |n| outer_array << Array.new(100, -n) }
+      puts "Finished creating test data, calculating optimal path now."
+      area = Area.new(outer_array)
+      start_time = Time.now
+      puts "Starting calculation at #{start_time}."
+      path = area.optimal_path
+      end_time = Time.now
+      puts "Ending calculation at #{end_time}."
+      duration = end_time - start_time
+      puts "Calculation duration: #{duration}, path = #{path}"
+      path.is_a?(Area::Path).should be_true
+    end
 
     it "should not permit initializing with invalid data" do
       pending "Need to add validation of matrix data input."
