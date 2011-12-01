@@ -143,8 +143,8 @@ module Fleuve
 
     it "should return a complete path even if a short path has a lower score" do
       data = [
-        [1,1,50,50],
-        [1,1,1,1]
+          [1,1,50,50],
+          [1,1,1,1]
       ]
       Area.new(data).optimal_path.total_resistance.should == 4
     end
@@ -152,7 +152,7 @@ module Fleuve
     #it "should run a matrix of 10 rows and 100 columns" do
     #  pending "This test takes a *really* long time to run.  Enable selectively..."
     #  outer_array = []
-    #  # we want to guarantee we have an optimal path, so use 0 for all values
+    #  # we want to guarantee we have an optimal path, so use 0 for all values in 1 row.
     #  10.times { |n| outer_array << Array.new(100, -n) }
     #  puts "Finished creating test data, calculating optimal path now."
     #  area = Area.new(outer_array)
@@ -166,8 +166,20 @@ module Fleuve
     #  path.is_a?(Area::Path).should be_true
     #end
     #
-    #it "should not permit initializing with invalid data" do
-    #  pending "Need to add validation of matrix data input."
-    #end
+    it "should not permit initializing with data other than Array or String" do
+      lambda { Area.new(3) }.should raise_error
+    end
+
+    it "should not permit initializing with an empty Array" do
+      lambda { Area.new([]) }.should raise_error
+    end
+
+    it "should not permit initializing with an Array that does not contain other than Array or String" do
+       lambda { Area.new(3) }.should raise_error
+    end
+
+    it "should not allow input data to have row arrays of unequal size." do
+      lambda { Area.new([[0, 1], [0] ]) }.should raise_error
+    end
   end
 end

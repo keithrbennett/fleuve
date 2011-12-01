@@ -19,6 +19,18 @@ module Fleuve
         when String
           @matrix_data = parse(array2d_or_string)
       end
+
+      unless @matrix_data.is_a?(Array) && (! @matrix_data.empty?)
+        raise "Input data was not an array whose size > 0."
+      end
+
+      unless @matrix_data.all? { |element| element.is_a?(Array) }
+        raise "Input array's elements were not all Arrays."
+      end
+
+      unless @matrix_data.all? { |array| array.size == @matrix_data[0].size }
+        raise "Not all rows in input data are of equal length."
+      end
     end
 
 
