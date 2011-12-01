@@ -108,7 +108,7 @@ module Fleuve
     def report_string
 
       path = optimal_path
-      success = path && path.does_not_exceed_maximum?
+      success = path && path.does_not_exceed_max_resistance?
       format_string = "%-17.17s: %s"
 
       lines = [format(format_string, "Success", (success ? "Yes" : "No" ))]
@@ -151,7 +151,7 @@ module Fleuve
           path1 < path2 ? path1 : path2
         end
 
-        (min_path && min_path.does_not_exceed_maximum?) ? min_path.copy : nil
+        (min_path && min_path.does_not_exceed_max_resistance?) ? min_path.copy : nil
       end
 
       def initialize(area, rownums_to_copy = nil)
@@ -209,7 +209,7 @@ module Fleuve
       end
 
       # Whether or not this Path instance conforms to the max resistance constraint.
-      def does_not_exceed_maximum?
+      def does_not_exceed_max_resistance?
         total_resistance <= area.max_resistance
       end
 
